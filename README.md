@@ -160,6 +160,25 @@ docker-compose restart prefect-worker
 docker exec prefect-server prefect work-pool ls
 ```
 
+## Deployments Overview
+
+You create and run deployments from your Windows host using the Prefect CLI.
+
+Basic pattern:
+
+```bash
+export PREFECT_API_URL=http://localhost:4200/api
+
+python -m prefect deploy flows/chula_extraction/flow_chula_extract_data.py:extract_chula_data \
+  --name person-extraction \
+  --pool chula-pool \
+  --params '{"table_name":"Person","output_filename":"Person.json","limit":1000}'
+
+python -m prefect deployment run 'extract_chula_data/person-extraction'
+```
+
+For more deployment examples (Dept, EQ, Craft, scheduling, deleting deployments), see `how_to_deploy.md`.
+
 ## Database Migration Details
 
 Prefect automatically creates these tables in PostgreSQL:
