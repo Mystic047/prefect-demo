@@ -100,7 +100,7 @@ Verify containers are running:
 docker-compose ps
 ```
 
-### Step 3: Deploy and Run Flows
+### Step 3: 🚀 Deploy and Run Flows
 
 You now deploy flows directly from your Windows host using the Prefect CLI (no `deployments` folder). See `how_to_deploy.md` for detailed, copy-paste commands.
 
@@ -160,11 +160,11 @@ docker-compose restart prefect-worker
 docker exec prefect-server prefect work-pool ls
 ```
 
-## Deployments Overview
+## 📦 Deployments Overview
 
 You create and run deployments from your Windows host using the Prefect CLI.
 
-Basic pattern:
+🧪 Basic pattern:
 
 ```bash
 export PREFECT_API_URL=http://localhost:4200/api
@@ -179,7 +179,7 @@ python -m prefect deployment run 'extract_chula_data/person-extraction'
 
 For more deployment examples (Dept, EQ, Craft, scheduling, deleting deployments), see `how_to_deploy.md`.
 
-### How Names Fit Together
+### 🧩 How Names Fit Together
 
 When you deploy, three related pieces come together:
 
@@ -194,7 +194,7 @@ extract_chula_data/person-extraction
 └─ Deployment name in Prefect:  <flow name>/<deployment name>
 ```
 
-Example delete command (old naming style):
+🗑 Example delete command (old naming style):
 
 ```bash
 python -m prefect deployment delete 'chula-extract-sqlserver-data/person-extraction'
@@ -208,19 +208,19 @@ With the new naming, the same pattern applies, just with `extract_chula_data` as
 python -m prefect deployment delete 'extract_chula_data/person-extraction'
                      └──────────────┬────────────────────────┘
                                     Flow name / deployment name
+```bash
+# 📜 View logs
+docker-compose logs -f prefect-worker
+
+# ⏹ Stop services
+docker-compose down
+
+# 🔄 Restart worker
+docker-compose restart prefect-worker
+
+# 🧺 Check work pools
+docker exec prefect-server prefect work-pool ls
 ```
-
-## Database Migration Details
-
-Prefect automatically creates these tables in PostgreSQL:
-
-- `flow_run` - Flow execution history
-- `task_run` - Task execution details
-- `deployment` - Deployment configurations
-- `work_pool` - Work pool definitions
-- `log` - Flow and task logs
-- And many more...
-
 No manual table creation needed!
 
 ## Troubleshooting
