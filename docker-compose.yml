@@ -1,0 +1,41 @@
+services:
+  prefect-server:
+    image: prefecthq/prefect:3-python3.11
+    container_name: prefect-server
+    command: prefect server start --host 0.0.0.0
+    environment:
+      PREFECT_API_URL: http://127.0.0.1:4200/api
+      PREFECT_SERVER_API_HOST: 0.0.0.0
+      PREFECT_API_DATABASE_CONNECTION_URL: ${PREFECT_API_DATABASE_CONNECTION_URL}
+    ports:
+      - "4200:4200"
+    networks:
+      - prefect-network
+    restart: unless-stopped
+
+  prefect-worker:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    container_name: prefect-worker
+    network_mode: "host"
+    environment:
+      PREFECT_API_URL: http://localhost:4200/api
+      SQLSERVER_HOST: ${SQLSERVER_HOST}
+      SQLSERVER_PORT: ${SQLSERVER_PORT}
+      SQLSERVER_DATABASE: ${SQLSERVER_DATABASE}
+      SQLSERVER_USER: ${SQLSERVER_USER}
+      SQLSERVER_PASSWORD: ${SQLSERVER_PASSWORD}
+    volumes:
+      - ./database_connection:/app/database_connection
+      - ./flows:/app/flows
+      - ./deployments:/app/deployments
+      - ./output:/app/output
+      - ./scripts:/app/scripts
+    depends_on:
+      - prefect-server
+    restart: unless-stopped
+
+networks:
+  prefect-network:
+    driver: bridge
