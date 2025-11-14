@@ -179,6 +179,37 @@ python -m prefect deployment run 'extract_chula_data/person-extraction'
 
 For more deployment examples (Dept, EQ, Craft, scheduling, deleting deployments), see `how_to_deploy.md`.
 
+### How Names Fit Together
+
+When you deploy, three related pieces come together:
+
+```text
+flows/chula_extraction/flow_chula_extract_data.py
+└─ Python file that defines the flow function
+
+extract_chula_data
+└─ Flow function name (also used in @flow(name="extract_chula_data"))
+
+extract_chula_data/person-extraction
+└─ Deployment name in Prefect:  <flow name>/<deployment name>
+```
+
+Example delete command (old naming style):
+
+```bash
+python -m prefect deployment delete 'chula-extract-sqlserver-data/person-extraction'
+                     └─────────────────────┬────────────────────────┘
+                                           Flow name / deployment name
+```
+
+With the new naming, the same pattern applies, just with `extract_chula_data` as the flow name:
+
+```bash
+python -m prefect deployment delete 'extract_chula_data/person-extraction'
+                     └──────────────┬────────────────────────┘
+                                    Flow name / deployment name
+```
+
 ## Database Migration Details
 
 Prefect automatically creates these tables in PostgreSQL:
