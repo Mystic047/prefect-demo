@@ -8,6 +8,11 @@ flows/
 │   ├── __init__.py
 │   ├── flow_chula_extract_data.py
 │   └── tasks_chula_extract_data.py
+│
+├── cedar7_cost_by_eq/             # Cedar7 cost_by_eq ETL (SQL Server -> PostgreSQL)
+│   ├── __init__.py
+│   ├── flow_cedar7_cost_by_eq.py
+│   └── tasks_cedar7_cost_by_eq.py
 ```
 
 ## Future ETL Example

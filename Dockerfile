@@ -29,4 +29,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY database_connection/ ./database_connection/
 COPY flows/ ./flows/
 
-CMD ["prefect", "worker", "start", "--pool", "chula-pool"]
+CMD ["prefect", "worker", "start", "--pool", "cedar7-pool"]

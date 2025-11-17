@@ -6,6 +6,29 @@
 - 📦 Prefect 3.6.1 installed: `pip install prefect==3.6.1`  
 - 🐳 Docker containers running (prefect-server and prefect-worker)
 
+## 🗂 Deploying with `prefect.yaml`
+
+Using the repo's `prefect.yaml` keeps deployment settings (entrypoint, pull steps, work pool, tags, etc.) under version control. The CLI will read this file automatically from the project root.
+
+1. **Point the CLI at your server (per terminal session):**
+	```bash
+	export PREFECT_API_URL=http://localhost:4200/api
+	```
+2. **Apply a deployment from the manifest:**
+	```bash
+	cd /e/prefect-demo
+	prefect deploy -n cedar7-cost-by-eq
+	```
+	- `-n cedar7-cost-by-eq` matches the deployment name defined under `deployments` in `prefect.yaml`.
+	- The command runs non-interactively and reuses the pull steps / work pool declared in the file.
+3. **Add or modify deployments:** edit `prefect.yaml`, commit the changes, then rerun `prefect deploy -n <name>` (or omit `-n` to deploy all entries).
+4. **Kick off a run after deploying:**
+	```bash
+	prefect deployment run 'cedar7-cost-by-eq/cedar7-cost-by-eq'
+	```
+
+Use this flow whenever you tweak flow code or infrastructure settings—no need to retype long CLI options each time.
+
 ## ⚡ Quick Start
 
 ### ❌ Remove Prefect's default git pull step (one-time per deployment)

@@ -25,6 +25,7 @@ services:
       SQLSERVER_DATABASE: ${SQLSERVER_DATABASE}
       SQLSERVER_USER: ${SQLSERVER_USER}
       SQLSERVER_PASSWORD: ${SQLSERVER_PASSWORD}
+      LOAD_DATABASE_CONNECTION_URL: ${LOAD_DATABASE_CONNECTION_URL}
     volumes:
       - ./database_connection:/app/database_connection
       - ./flows:/app/flows

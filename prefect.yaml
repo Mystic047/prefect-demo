@@ -2,9 +2,16 @@
 name: chula-sql-extractions
 prefect-version: 3.6.1
 
-# Always run flows from the code that is volume-mounted at /app
-pull:
-  - prefect.deployments.steps.set_working_directory:
-      directory: /app
-
-deployments: []
+deployments:
+  - name: cedar7-cost-by-eq
+    description: Sync cost_by_eq metrics from SQL Server into cedar_dashboard
+    entrypoint: flows/cedar7_cost_by_eq/flow_cedar7_cost_by_eq.py:sync_cost_by_eq
+    pull:
+      - prefect.deployments.steps.set_working_directory:
+          directory: /app
+    tags: [cedar7]
+    work_pool:
+      name: cedar7-pool
+      work_queue_name: null
+      job_variables:
+        working_dir: /app
