@@ -29,9 +29,7 @@ services:
     volumes:
       - ./database_connection:/app/database_connection
       - ./flows:/app/flows
-      - ./deployments:/app/deployments
       - ./output:/app/output
-      - ./scripts:/app/scripts
     depends_on:
       - prefect-server
     restart: unless-stopped
