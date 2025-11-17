@@ -8,6 +8,12 @@
 
 ## ⚡ Quick Start
 
+### ❌ Remove Prefect's default git pull step (one-time per deployment)
+- Open Prefect UI → Deployments → click your deployment → **Edit**.
+- Under **Pull steps**, delete `prefect.deployments.steps.git_clone`.
+- Add `prefect.deployments.steps.set_working_directory` and set `directory=/app`.
+- Save. The worker already sees your code via Docker volume mounts, so no git needed.
+
 ### 1️⃣ Set Prefect API URL (once per terminal session)
 put this command into the terminal (Git Bash or CMD)
 ==============================================

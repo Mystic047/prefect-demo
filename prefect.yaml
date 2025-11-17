@@ -1,0 +1,10 @@
+# Prefect deployment configuration
+name: chula-sql-extractions
+prefect-version: 3.6.1
+
+# Always run flows from the code that is volume-mounted at /app
+pull:
+  - prefect.deployments.steps.set_working_directory:
+      directory: /app
+
+deployments: []

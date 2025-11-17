@@ -18,9 +18,8 @@ services:
       context: ./
       dockerfile: Dockerfile
     container_name: prefect-worker
-    network_mode: "host"
     environment:
-      PREFECT_API_URL: http://localhost:4200/api
+      PREFECT_API_URL: http://prefect-server:4200/api
       SQLSERVER_HOST: ${SQLSERVER_HOST}
       SQLSERVER_PORT: ${SQLSERVER_PORT}
       SQLSERVER_DATABASE: ${SQLSERVER_DATABASE}
@@ -30,6 +29,8 @@ services:
       - ./database_connection:/app/database_connection
       - ./flows:/app/flows
       - ./output:/app/output
+    networks:
+      - prefect-network
     depends_on:
       - prefect-server
     restart: unless-stopped

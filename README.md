@@ -179,6 +179,13 @@ python -m prefect deployment run 'extract_chula_data/person-extraction'
 
 For more deployment examples (Dept, EQ, Craft, scheduling, deleting deployments), see `how_to_deploy.md`.
 
+**Disable Prefect's default git pull step**
+
+- After each deploy, open Prefect UI → Deployments → select your deployment → **Edit** → Pull steps.
+- Remove the auto-generated `prefect.deployments.steps.git_clone` step.
+- Add a `prefect.deployments.steps.set_working_directory` step that points at `/app` (code is already there via Docker volume mounts).
+- Save the deployment; future runs will skip git entirely and use the mounted files.
+
 ### 🧩 How Names Fit Together
 
 When you deploy, three related pieces come together:
