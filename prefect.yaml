@@ -1,4 +1,4 @@
-# Prefect deployment configuration
+# Prefect deployment configuration using this command : prefect deploy -n cedar7-cost-by-eq
 name: chula-sql-extractions
 prefect-version: 3.6.1
 

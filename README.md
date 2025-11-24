@@ -8,12 +8,12 @@ Clean production-ready setup for Prefect data orchestration with SQL Server and 
 ┌─────────────────────────────────────────────┐
 │           Docker Containers                 │
 │                                             │
-│  ┌──────────────┐    ┌──────────────┐      │
-│  │   Prefect    │    │   Prefect    │      │
-│  │   Server     │◄───┤   Worker     │      │
-│  │  (Port 4200) │    │ (chula-pool) │      │
-│  └───────┬──────┘    └──────┬───────┘      │
-│          │                  │              │
+│  ┌──────────────┐    ┌──────────────┐       │
+│  │   Prefect    │    │   Prefect    │       │
+│  │   Server     │◄───┤   Worker     │       │
+│  │  (Port 4200) │    │ (chula-pool) │       │
+│  └───────┬──────┘    └──────┬───────┘       │
+│          │                  │               │
 └──────────┼──────────────────┼───────────────┘
            │                  │
            ▼                  ▼
