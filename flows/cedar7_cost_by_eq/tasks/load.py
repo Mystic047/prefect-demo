@@ -19,16 +19,22 @@ def load_cost_by_eq_data(
 ) -> Dict[str, Any]:
     """Write transformed data into the cedar_dashboard PostgreSQL database."""
     logger = get_run_logger()
-    if df.empty:
-        logger.warning("No rows to load into %s; skipping load step", destination_table)
-        return {"rows_inserted": 0, "table": destination_table}
-
-    engine = get_postgres_engine()
     qualified_table = (
         f"{destination_schema}.{destination_table}"
         if destination_schema
         else destination_table
     )
+
+    if df.empty:
+        logger.warning("No rows to load into %s; skipping load step", destination_table)
+        return {
+            "rows_inserted": 0,
+            "table": destination_table,
+            "schema": destination_schema,
+            "qualified_table": qualified_table,
+        }
+
+    engine = get_postgres_engine()
 
     with engine.begin() as conn:
         if truncate_before_load:

@@ -15,3 +15,20 @@ deployments:
       work_queue_name: null
       job_variables:
         working_dir: /app
+
+  - name: chula-person-extraction
+    description: Extract Person rows from SQL Server into JSON output
+    entrypoint: flows/chula_extraction/flow_chula_extract_data.py:extract_chula_data
+    parameters:
+      table_name: Person
+      output_filename: Person.json
+      limit: 1000
+    pull:
+      - prefect.deployments.steps.set_working_directory:
+          directory: /app
+    tags: [chula]
+    work_pool:
+      name: cedar7-pool
+      work_queue_name: null
+      job_variables:
+        working_dir: /app

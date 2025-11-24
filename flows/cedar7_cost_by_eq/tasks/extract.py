@@ -19,7 +19,7 @@ SELECT
     SUM(CASE WHEN wr.RESCTYPE = 'P' AND wr.RESCSUBTYPE IN ('N','S') THEN wr.amount ELSE 0 END) AS SparePartCost,
     SUM(CASE WHEN wr.RESCTYPE = 'O' AND wr.RESCSUBTYPE IN ('O','V') THEN wr.amount ELSE 0 END) AS OutsourceCost,
     SUM(
-        CASE 
+        CASE
             WHEN wr.RESCTYPE = 'L' THEN wr.amount
             WHEN wr.RESCTYPE = 'P' AND wr.RESCSUBTYPE IN ('N','S') THEN wr.amount
             WHEN wr.RESCTYPE = 'O' AND wr.RESCSUBTYPE IN ('O','V') THEN wr.amount
