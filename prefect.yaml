@@ -1,4 +1,5 @@
 # Prefect deployment configuration using this command : prefect deploy -n cedar7-cost-by-eq
+# if you want to deploy all of the flows using this command : prefect deploy
 name: chula-sql-extractions
 prefect-version: 3.6.1
 
