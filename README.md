@@ -1,273 +1,47 @@
-# Prefect Production Setup
+# Prefect Deployment Guide
 
-Clean production-ready setup for Prefect data orchestration with SQL Server and external PostgreSQL.
+Use this repo when you already have the flows and `prefect.yaml` checked in and only need to redeploy them with the Prefect CLI.
 
-## Architecture
+## Requirements
 
-```
-┌─────────────────────────────────────────────┐
-│           Docker Containers                 │
-│                                             │
-│  ┌──────────────┐    ┌──────────────┐       │
-│  │   Prefect    │    │   Prefect    │       │
-│  │   Server     │◄───┤   Worker     │       │
-│  │  (Port 4200) │    │ (chula-pool) │       │
-│  └───────┬──────┘    └──────┬───────┘       │
-│          │                  │               │
-└──────────┼──────────────────┼───────────────┘
-           │                  │
-           ▼                  ▼
-    ┌─────────────┐    ┌─────────────┐
-    │ PostgreSQL  │    │ SQL Server  │
-    │   (AWS)     │    │   (Azure)   │
-    │             │    │             │
-    │ Prefect     │    │ Your Data   │
-    │  Metadata   │    │   Source    │
-    └─────────────┘    └─────────────┘
-```
+- Windows host with Docker running the Prefect API (start with `docker-compose up -d`).
+- Python 3.12 installed and on PATH.
+- Prefect 3.6.1 installed: `pip install prefect==3.6.1`.
+- Access to this repository with `prefect.yaml` in the root directory.
 
-## Folder Structure
+## Deploying from `prefect.yaml`
 
-```
-prefect-demo/
-├── flows/                  # Flow definitions
-│   └── chula_extraction/   # Chula extraction flow package
-├── database_connection/    # SQL Server connection helpers
-├── scripts/                # Utility scripts
-│   └── init_prefect.sh     # Database setup script (optional)
-├── output/                 # Flow outputs (JSON files)
-├── docker-compose.yml      # Container orchestration
-├── Dockerfile              # Worker container image
-├── requirements.txt        # Python dependencies
-├── .env.template           # Environment variables template
-├── how_to_deploy.md        # Step-by-step deploy/run commands
-└── README.md               # This file
-```
-
-## Prerequisites
-
-### 1. PostgreSQL Database (AWS RDS)
-
-Create a PostgreSQL database for Prefect metadata:
-
-```sql
-CREATE DATABASE prefect_db;
-CREATE USER prefect_user WITH PASSWORD 'your_password';
-GRANT ALL PRIVILEGES ON DATABASE prefect_db TO prefect_user;
-```
-
-### 2. SQL Server Database
-
-Ensure your SQL Server is accessible and you have:
-- Host/endpoint
-- Port (default: 1433)
-- Database name
-- Username and password
-
-## Setup Instructions
-
-### Step 1: Configure Environment
-
-```bash
-# Copy template
-cp .env.template .env
-
-# Edit with your credentials
-nano .env
-```
-
-Update these values:
-```env
-# PostgreSQL (Prefect metadata storage)
-PREFECT_API_DATABASE_CONNECTION_URL=postgresql+asyncpg://prefect_user:your_password@your-rds-host.amazonaws.com:5432/prefect_db
-
-# SQL Server (Your data source)
-SQLSERVER_HOST=your-server.database.windows.net
-SQLSERVER_PORT=1433
-SQLSERVER_DATABASE=your_database
-SQLSERVER_USER=your_username
-SQLSERVER_PASSWORD=your_password
-```
-
-### Step 2: Start Services
-
-```bash
-docker-compose up -d
-```
-
-Verify containers are running:
-```bash
-docker-compose ps
-```
-
-### Step 3: 🚀 Deploy and Run Flows
-
-You now deploy flows directly from your Windows host using the Prefect CLI (no `deployments` folder). See `how_to_deploy.md` for detailed, copy-paste commands.
-
-Basic pattern from Windows (Git Bash or CMD):
+Every deployment is declared in `prefect.yaml`, so redeploying is just a CLI command.
 
 ```bash
 export PREFECT_API_URL=http://localhost:4200/api
+cd /e/prefect-demo
 
-python -m prefect deploy flows/chula_extraction/flow_chula_extract_data.py:extract_chula_data \
-  --name person-extraction \
-  --pool chula-pool \
-  --params '{"table_name":"Person","output_filename":"Person.json","limit":1000}'
+# Deploy a single entry by name
+prefect deploy -n cedar7-cost-by-eq
 
-python -m prefect deployment run 'extract_chula_data/person-extraction'
+# Trigger the run right after
+prefect deployment run 'cedar7-cost-by-eq/cedar7-cost-by-eq'
+
+# Deploy another entry
+prefect deploy -n chula-person-extraction
+prefect deployment run 'chula-person-extraction/chula-person-extraction'
+
+# Redeploy everything in the manifest (optional)
+prefect deploy
 ```
 
-## Flow Parameters
+Tips:
 
-The main extraction flow `extract_chula_data` accepts:
+- Run `prefect deploy -n <name>` whenever you change flow code or metadata for that entry.
+- Omit `-n` when you want to apply every deployment defined in the manifest.
+- After editing `prefect.yaml`, commit the change so teammates inherit the same settings.
 
-- `table_name` (required): SQL Server table to extract
-- `output_filename` (optional): Output JSON filename
-- `limit` (optional): Max rows to extract (default: 1000)
+## Updating Deployments
 
-## Output Files
+1. Edit the relevant block under `deployments:` in `prefect.yaml` (entrypoint, parameters, pull steps, work pool, etc.).
+2. Save and commit the file.
+3. Rerun `prefect deploy -n <name>` to publish the changes.
+4. Start a run with `prefect deployment run '<name>/<name>'` to verify.
 
-Extracted data is saved to `./output/` as JSON files:
-```
-output/
-├── Person.json
-├── Dept.json
-└── EQ.json
-```
-
-## Monitoring
-
-Access Prefect UI: http://localhost:4200
-
-- View flow runs
-- Monitor logs
-- Check work pool status
-- Manage deployments
-
-## Common Commands
-
-```bash
-# View logs
-docker-compose logs -f prefect-worker
-
-# Stop services
-docker-compose down
-
-# Restart worker
-docker-compose restart prefect-worker
-
-# Check work pools
-docker exec prefect-server prefect work-pool ls
-```
-
-## 📦 Deployments Overview
-
-You create and run deployments from your Windows host using the Prefect CLI.
-
-🧪 Basic pattern:
-
-```bash
-export PREFECT_API_URL=http://localhost:4200/api
-
-python -m prefect deploy flows/chula_extraction/flow_chula_extract_data.py:extract_chula_data \
-  --name person-extraction \
-  --pool chula-pool \
-  --params '{"table_name":"Person","output_filename":"Person.json","limit":1000}'
-
-python -m prefect deployment run 'extract_chula_data/person-extraction'
-```
-
-For more deployment examples (Dept, EQ, Craft, scheduling, deleting deployments), see `how_to_deploy.md`.
-
-**Disable Prefect's default git pull step**
-
-- After each deploy, open Prefect UI → Deployments → select your deployment → **Edit** → Pull steps.
-- Remove the auto-generated `prefect.deployments.steps.git_clone` step.
-- Add a `prefect.deployments.steps.set_working_directory` step that points at `/app` (code is already there via Docker volume mounts).
-- Save the deployment; future runs will skip git entirely and use the mounted files.
-
-### 🧩 How Names Fit Together
-
-When you deploy, three related pieces come together:
-
-```text
-flows/chula_extraction/flow_chula_extract_data.py
-└─ Python file that defines the flow function
-
-extract_chula_data
-└─ Flow function name (also used in @flow(name="extract_chula_data"))
-
-extract_chula_data/person-extraction
-└─ Deployment name in Prefect:  <flow name>/<deployment name>
-```
-
-🗑 Example delete command (old naming style):
-
-```bash
-python -m prefect deployment delete 'chula-extract-sqlserver-data/person-extraction'
-                     └─────────────────────┬────────────────────────┘
-                                           Flow name / deployment name
-```
-
-With the new naming, the same pattern applies, just with `extract_chula_data` as the flow name:
-
-```bash
-python -m prefect deployment delete 'extract_chula_data/person-extraction'
-                     └──────────────┬────────────────────────┘
-                                    Flow name / deployment name
-```bash
-# 📜 View logs
-docker-compose logs -f prefect-worker
-
-# ⏹ Stop services
-docker-compose down
-
-# 🔄 Restart worker
-docker-compose restart prefect-worker
-
-# 🧺 Check work pools
-docker exec prefect-server prefect work-pool ls
-```
-No manual table creation needed!
-
-## Troubleshooting
-
-### Cannot connect to PostgreSQL
-
-```bash
-# Test connection
-docker run --rm postgres:15-alpine psql "postgresql://user:pass@host:5432/db" -c "SELECT 1"
-```
-
-### SQL Server connection fails
-
-Verify:
-- Firewall rules allow connections
-- ODBC Driver 17 is installed (included in Dockerfile)
-- Connection string format is correct
-
-### Work pool not found
-
-```bash
-# Create manually
-docker exec prefect-server prefect work-pool create chula-pool --type process
-```
-
-## Production Checklist
-
-- [ ] PostgreSQL database created on AWS RDS
-- [ ] SQL Server accessible from Docker network
-- [ ] `.env` file configured with real credentials
-- [ ] Database migrations completed
-- [ ] Work pool `chula-pool` created
-- [ ] Flow deployed successfully
-- [ ] Test run completed
-- [ ] Monitoring in Prefect UI working
-
-## Security Notes
-
-- Never commit `.env` file
-- Use strong passwords for database connections
-- Restrict PostgreSQL access to known IPs
-- Use SSL/TLS for database connections in production
-- Consider using secrets management (AWS Secrets Manager, Azure Key Vault)
+That’s it—everything else (folder structure, troubleshooting, architecture) lives in the repo and can be referenced as needed.
