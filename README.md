@@ -9,6 +9,17 @@ Use this repo when you already have the flows and `prefect.yaml` checked in and 
 - Prefect 3.6.1 installed: `pip install prefect==3.6.1`.
 - Access to this repository with `prefect.yaml` in the root directory.
 
+## Creating Work Pools
+
+Deployments reference Prefect work pools (for example `cedar7-pool`). If a pool does not already exist on your server, create it once and reuse it for all deployments:
+
+```bash
+export PREFECT_API_URL=http://localhost:4200/api
+prefect work-pool create cedar7-pool --type process
+```
+
+Repeat with a different name whenever you introduce a new pool. Ensure your worker is started against the same pool name so it can pick up queued runs.
+
 ## Deploying from `prefect.yaml`
 
 Every deployment is declared in `prefect.yaml`, so redeploying is just a CLI command.
